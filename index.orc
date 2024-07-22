@@ -11,7 +11,7 @@ p3 filelen SNote
 
 aLeft, aRight diskin2 SNote
 
-outs aLeft/p5, aRight/p5
+outs aLeft/p5, aRight/p6
 
 endin
 

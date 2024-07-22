@@ -1,0 +1,6 @@
+
+~ 120 4
+
+0/4 clap/1 1/4 clap/2 2/4 clap/3 3/4 clap/4 | $ maqsum 0/8 dom/01 1/8 tak/04 3/8 tak/07 4/8 dom/12 6/8 tak/06
+
+| maqsum
