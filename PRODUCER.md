@@ -25,12 +25,16 @@ In addition, Csound must be installed for this roll to work.
 ./PRODUCER.md NOTATION
 ```
 
-## Example
-
-### `example.no`
+## `examples/`
 
 ```roll
-?# cat - > example.no
+?# rm -fr examples ; mkdir examples
+```
+
+### `examples/scratch.no`
+
+```roll
+?# cat - > examples/scratch.no
 ```
 
 ```
@@ -38,7 +42,7 @@ In addition, Csound must be installed for this roll to work.
 
 ~ 105 4
 
-o testRecording
+o examples/
 
 $ countdown 0/4 clap/1 1/4 clap/2 2/4 clap/3 3/4 clap/4
 
@@ -62,10 +66,10 @@ $ countdown 0/4 clap/1 1/4 clap/2 2/4 clap/3 3/4 clap/4
 
 sr = 48000
 ksmps = 32
-nchnls = 2
+nchnls = 6
 0dbfs = 1
 
-instr 1, beat
+instr 13, beat
 
 iRate init 1 / abs ( p3 )
 p3 *= 1000
@@ -76,13 +80,13 @@ kLoop metro iRate
 
 if kLoop == 1 then
 
-schedulek 13 + frac ( p1 ), 0, 1, p5, p6, p7
+schedulek 9 + frac ( p1 ), 0, 1, p5, p6, p7
 
 endif
 
 endin
 
-instr 13, playback
+instr 9, playback
 
 SNote strget p4
 p3 filelen SNote
@@ -93,27 +97,20 @@ outs aLeft / ( p5 + 1 ), aRight / ( p6 + 1 )
 
 endin
 
-instr 2, loop
-
-setscorepos p3
-
-endin
-
-instr 3, record
-
-/*
-iInstance chnget "record"
-chnset iInstance + 1, "record"
+instr 4, record
 
 SPath strget p4
-SRecord sprintf "%s_%d.wav", SPath, iInstance
-*/
+SPath1 strcat SPath, "_1.wav"
+SPath2 strcat SPath, "_2.wav"
+SPath3 strcat SPath, "_3.wav"
 
-SRecord strget p4
+aLeft1, aRight1 inch 1, 2
+aLeft2, aRight2 inch 3, 4
+aLeft3, aRight3 inch 5, 6
 
-aLeft, aRight ins
-
-fout SRecord, -1, aLeft, aRight
+fout SPath1, -1, aLeft1, aRight1
+fout SPath2, -1, aLeft2, aRight2
+fout SPath3, -1, aLeft3, aRight3
 
 endin
 
@@ -144,7 +141,7 @@ async $_producer ( $ ) {
 
 try {
 
-const notation = await readFile ( process .argv .slice ( 2 ) .shift () || 'example.no', 'utf8' );
+const notation = await readFile ( process .argv .slice ( 2 ) .shift () || 'examples/scratch.no', 'utf8' );
 
 for ( let line of notation .trim () .split ( '\n' ) )
 if ( ( line = line .trim () ) .length )
@@ -164,9 +161,8 @@ console .error ( '#error', error ?.message || error );
 
 [ '$~' ] ( $, tempo, bar, ... argv ) {
 
-this .push ( `v ${ bar }` );
-
-Object .assign ( this, { tempo, bar } );
+this .push ( `t 0 ${ this .tempo = tempo }`,
+`v ${ this .bar = bar }` );
 
 return $ ( ... argv );
 
@@ -176,17 +172,7 @@ time = 0;
 
 [ '$|' ] ( $, ... argv ) {
 
-this .time++;
-
-this .push (
-
-`t 0 ${ this .tempo }`,
-'v 1',
-`s ${ this .bar }`
-
-);
-
-return $ ( '~', this .tempo, this .bar, ... argv );
+return this .push ( `b ${ ++this .time * this .bar }` ), $ ( ... argv );
 
 }
 
@@ -246,7 +232,7 @@ const instance = this .instance ();
 return [
 
 'i',
-`1.${ instance }`,
+`13.${ instance }`,
 `[${ step }/${ divisions }]`,
 time === this .time - 1 ? this .time : -this .time,
 `"equipment/${ sound }.wav"`,
@@ -262,7 +248,7 @@ record = {}
 
  $o ( $, path ) {
 
-this .push ( `i 3.${ this .record [ path ] = this .instance () } 0 -1 "${ path }"` );
+this .push ( `i 4.${ this .record [ path ] = this .instance () } 0 -1 "${ path }"` );
 
 }
 

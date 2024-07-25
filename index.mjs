@@ -8,7 +8,7 @@ async $_producer ( $ ) {
 
 try {
 
-const notation = await readFile ( process .argv .slice ( 2 ) .shift () || 'example.no', 'utf8' );
+const notation = await readFile ( process .argv .slice ( 2 ) .shift () || 'examples/scratch.no', 'utf8' );
 
 for ( let line of notation .trim () .split ( '\n' ) )
 if ( ( line = line .trim () ) .length )
@@ -28,9 +28,8 @@ console .error ( '#error', error ?.message || error );
 
 [ '$~' ] ( $, tempo, bar, ... argv ) {
 
-this .push ( `v ${ bar }` );
-
-Object .assign ( this, { tempo, bar } );
+this .push ( `t 0 ${ this .tempo = tempo }`,
+`v ${ this .bar = bar }` );
 
 return $ ( ... argv );
 
@@ -40,17 +39,7 @@ time = 0;
 
 [ '$|' ] ( $, ... argv ) {
 
-this .time++;
-
-this .push (
-
-`t 0 ${ this .tempo }`,
-'v 1',
-`s ${ this .bar }`
-
-);
-
-return $ ( '~', this .tempo, this .bar, ... argv );
+return this .push ( `b ${ ++this .time * this .bar }` ), $ ( ... argv );
 
 }
 
@@ -110,7 +99,7 @@ const instance = this .instance ();
 return [
 
 'i',
-`1.${ instance }`,
+`13.${ instance }`,
 `[${ step }/${ divisions }]`,
 time === this .time - 1 ? this .time : -this .time,
 `"equipment/${ sound }.wav"`,
@@ -126,7 +115,7 @@ record = {}
 
  $o ( $, path ) {
 
-this .push ( `i 3.${ this .record [ path ] = this .instance () } 0 -1 "${ path }"` );
+this .push ( `i 4.${ this .record [ path ] = this .instance () } 0 -1 "${ path }"` );
 
 }
 
